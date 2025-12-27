@@ -548,3 +548,5 @@ All rights reserved © 2025 Genomics Research & Diagnostics Centre.
 **Made with ❤️ for better healthcare**
 
 🧬 Genomics Research & Diagnostics Centre
+#   g e n o m i c s  
+ 
