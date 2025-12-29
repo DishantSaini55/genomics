@@ -4,21 +4,29 @@
    ======================================== */
 
 // ===== HERO BUTTON FUNCTIONS (MUST BE FIRST) =====
-function scrollToBooking() {
+window.scrollToBooking = function() {
     console.log('📋 Book a Test clicked!');
     const bookingSection = document.getElementById('booking-form');
     if (bookingSection) {
-        bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const offsetTop = bookingSection.offsetTop - 80; // Account for navbar height
+        window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+        });
     }
-}
+};
 
-function scrollToTests() {
+window.scrollToTests = function() {
     console.log('🧪 View Tests clicked!');
     const testsSection = document.getElementById('tests');
     if (testsSection) {
-        testsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const offsetTop = testsSection.offsetTop - 80; // Account for navbar height
+        window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+        });
     }
-}
+};
 
 // ===== EmailJS Configuration =====
 // TODO: Replace with your actual EmailJS credentials
@@ -48,6 +56,27 @@ const searchInput = document.getElementById('searchTests');
 const sortSelect = document.getElementById('sortTests');
 const testsGrid = document.getElementById('testsGrid');
 const noResults = document.getElementById('noResults');
+const darkModeToggle = document.getElementById('darkModeToggle');
+
+// ===== Dark Mode Functionality =====
+// Check for saved dark mode preference
+if (localStorage.getItem('darkMode') === 'enabled') {
+    document.body.classList.add('dark-mode');
+}
+
+// Dark mode toggle
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        
+        // Save preference
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            localStorage.setItem('darkMode', 'disabled');
+        }
+    });
+}
 
 // ===== Navigation Functionality =====
 
@@ -87,6 +116,27 @@ document.querySelectorAll('.nav-link').forEach(link => {
         spans[0].style.transform = 'none';
         spans[1].style.opacity = '1';
         spans[2].style.transform = 'none';
+    });
+});
+
+// ===== FAQ Accordion =====
+document.addEventListener('DOMContentLoaded', () => {
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        
+        question.addEventListener('click', () => {
+            // Close all other items
+            faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                }
+            });
+            
+            // Toggle current item
+            item.classList.toggle('active');
+        });
     });
 });
 
@@ -215,6 +265,50 @@ function filterAndSortTests() {
 window.openBookingModal = function(testName, price) {
     const modalTestInput = document.getElementById('modalTestName');
     modalTestInput.value = `${testName} - ₹${price}`;
+    bookingModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+// Open DNA Wellness modal with add-ons
+window.openDNAWellnessModal = function() {
+    // Get selected pricing type
+    const pricingRadio = document.querySelector('input[name="dna-pricing"]:checked');
+    const pricingType = pricingRadio.value === 'individual' ? 'Individual' : 'Partner';
+    const basePrice = parseInt(pricingRadio.dataset.price);
+    const addonPrice = parseInt(pricingRadio.dataset.addonPrice);
+    
+    // Get selected add-ons
+    const checkboxes = document.querySelectorAll('.addon-checkbox');
+    const selectedAddons = [];
+    let totalPrice = basePrice;
+    
+    checkboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+            selectedAddons.push(checkbox.dataset.addon);
+            totalPrice += addonPrice;
+        }
+    });
+    
+    // Build test details string
+    let testDetails = `DNA Wellness Test (${pricingType})`;
+    if (selectedAddons.length > 0) {
+        testDetails += ` + ${selectedAddons.join(', ')}`;
+    }
+    
+    const modalTestInput = document.getElementById('modalTestName');
+    modalTestInput.value = `${testDetails} - ₹${totalPrice.toLocaleString('en-IN')}`;
+    bookingModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+
+// Open booking modal for tests with pricing type selector
+window.openTestWithPricing = function(testName, radioName) {
+    const pricingRadio = document.querySelector(`input[name="${radioName}"]:checked`);
+    const pricingType = pricingRadio.value === 'individual' ? 'Individual' : 'Partner';
+    const price = parseInt(pricingRadio.dataset.price);
+    
+    const modalTestInput = document.getElementById('modalTestName');
+    modalTestInput.value = `${testName} (${pricingType}) - ₹${price.toLocaleString('en-IN')}`;
     bookingModal.classList.add('active');
     document.body.style.overflow = 'hidden';
 };
